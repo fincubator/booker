@@ -25,7 +25,7 @@ TEST_TX = TransactionDTO(
     created_at=datetime.datetime.now(),
 )
 
-TEST_ORDER = OrderDTO(order_id=str(uuid4()), in_tx=TEST_TX)
+TEST_ORDER = OrderDTO(order_id=uuid4(), in_tx=TEST_TX)
 
 
 @pytest.mark.asyncio

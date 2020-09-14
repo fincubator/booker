@@ -16,7 +16,7 @@ class BaseClient(JsonRpcClient):
     def safe_call_execute(cls, call):
         async def process_call(client: BaseClient, *args, **kwargs):
             await client.connect(client._host, client._port)
-            # TODO Implement Responce schema
+            # TODO Implement Response schema
             try:
                 result = await call(client, *args, **kwargs)
             except Exception as ex:

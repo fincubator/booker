@@ -36,7 +36,7 @@ def test_dump_tx():
 
 
 def test_dump_order():
-    order = OrderDTO(order_id=str(uuid4()), in_tx=TEST_TX)
+    order = OrderDTO(order_id=uuid4(), in_tx=TEST_TX)
 
     dump = order.to_dump()
 

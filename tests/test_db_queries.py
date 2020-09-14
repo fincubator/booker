@@ -99,7 +99,7 @@ async def test_update_tx():
             await delete_tx(conn, tx.tx_id)
             await delete_tx(conn, out_tx.tx_id)
 
-            assert updated['confirmations'] == 10
+            assert updated["confirmations"] == 10
 
     except Exception as ex:
         pytest.skip(

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import dataclasses
 import json
 import datetime
+from uuid import UUID
 
 from finteh_proto.enums import TxError, OrderType, EnumEncoder, as_enum
 
@@ -26,6 +27,8 @@ class DataTransferClass:
             if isinstance(v, Decimal):
                 _dict[k] = str(v)
             if isinstance(v, datetime.datetime):
+                _dict[k] = str(v)
+            if isinstance(v, UUID):
                 _dict[k] = str(v)
 
         return json.dumps(_dict, cls=EnumEncoder)
@@ -55,7 +58,7 @@ class TransactionDTO(DataTransferClass):
 
 @dataclass
 class OrderDTO(DataTransferClass):
-    order_id: str = None
+    order_id: UUID = None
     in_tx: TransactionDTO = None
     out_tx: TransactionDTO = None
     order_type: OrderType = OrderType.TRASH

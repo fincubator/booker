@@ -23,7 +23,7 @@ class BaseServer(JsonRpc):
         self._port = port
         self.app = Application()
 
-        self.add_methods(("", self.ping))
+        self.add_methods(("", self.ping, "", self.test_rpc))
 
     async def start(self):
         self.app.router.add_route("*", "/", self.handle_request)
@@ -44,3 +44,6 @@ class BaseServer(JsonRpc):
     async def status(self, request: HTTPRequest) -> HTTPResponse:
         """Http health check"""
         return HTTPResponse(text="Ok")
+
+    async def test_rpc(self, request: JsonRpcRequest):
+        return "pong"

@@ -9,7 +9,7 @@ project_root_dir = Path(__file__).parent.parent
 
 
 class Config:
-    gateway_prefix = "FINTEH"
+    exchange_prefix = "FINTEH"
 
     db_driver: str = "postgres+psycopg2"
     db_host: str = "0.0.0.0"
@@ -25,11 +25,10 @@ class Config:
     gateways: dict = {"USDT": {"native": None, "target": ["0.0.0.0", 6666]}}
 
     def with_env(self):
-
         """ Loading local configuration from .env file """
         load_dotenv()
         new_params = dict(
-            gateway_prefix=getenv("GATEWAY_PREFIX"),
+            gateway_prefix=getenv("EXCHANGE_PREFIX"),
             db_driver=getenv("DATABASE_DRIVER"),
             db_host=getenv("DATABASE_HOST"),
             db_port=getenv("DATABASE_PORT"),

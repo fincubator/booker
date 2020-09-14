@@ -22,14 +22,14 @@ TEST_TX = TransactionDTO(
     created_at=datetime.datetime.now(),
 )
 
-TEST_ORDER = OrderDTO(order_id=str(uuid4()), in_tx=TEST_TX)
+TEST_ORDER = OrderDTO(order_id=uuid4(), in_tx=TEST_TX)
 
 
 @pytest.mark.asyncio
 async def test_booker_server_and_gateway_client():
     server = BookerServer()
     await server.start()
-    client = GatewaySideClient()
+    client = GatewaySideClient(port=8888)
 
     in_tx = TEST_TX
 

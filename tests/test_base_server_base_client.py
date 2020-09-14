@@ -30,3 +30,31 @@ async def test_base_status():
     assert await r.text() == "Ok"
 
     await server.stop()
+
+
+@pytest.mark.asyncio
+async def test_dto_by_rpc():
+    import dataclasses
+
+    from marshmallow_dataclass import dataclass
+    from finteh_proto.dto import DataTransferClass
+
+    @dataclass
+    class TestDTO(DataTransferClass):
+        int_param: int
+        str_param: str
+        bool_param: bool
+
+    t_obj = TestDTO(int_param=1, str_param="HW", bool_param=True)
+
+    server = BaseServer()
+    await server.start()
+
+    client = BaseClient()
+    await client.connect("0.0.0.0", 8080)
+
+    call_result = await client.call("test_rpc", t_obj)
+    assert call_result == "pong"
+
+    await client.disconnect()
+    await server.stop()

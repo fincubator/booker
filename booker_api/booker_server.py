@@ -37,16 +37,20 @@ class BookerServer(BaseServer):
         out_tx.tx_id = None
 
         if self.ctx:
-            prefix = self.ctx.cfg.gateway_prefix
+            prefix = self.ctx.cfg.exchange_prefix
         else:
-            prefix = Config.gateway_prefix
+            prefix = Config.exchange_prefix
 
         if prefix in in_tx.coin:
             order_type = OrderType.WITHDRAWAL
         else:
             order_type = OrderType.DEPOSIT
         order = OrderDTO(
-            order_id=str(uuid4()), in_tx=in_tx, out_tx=out_tx, order_type=order_type
+            # TODO remove str()
+            order_id=uuid4(),
+            in_tx=in_tx,
+            out_tx=out_tx,
+            order_type=order_type,
         )
 
         if self.ctx:
@@ -73,7 +77,9 @@ class BookerServer(BaseServer):
         if self.ctx:
             async with self.ctx.db_engine.acquire() as conn:
                 tx_db_data = await get_tx_by_tx_id(conn, tx_dto.tx_id)
-                tx_model_instance = Tx(id=tx_db_data['id'], **dataclasses.asdict(tx_dto))
+                tx_model_instance = Tx(
+                    id=tx_db_data["id"], **dataclasses.asdict(tx_dto)
+                )
                 await update_tx(conn, tx_model_instance)
 
         updated_order = UpdateTxDTO(is_updated=True)
