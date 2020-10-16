@@ -23,6 +23,33 @@ class AppContext:
         self.gateways_clients = {}
         self.order_processing: OrdersProcessor
 
+    async def check_connections(self):
+        log.info("Run connections checking...")
+        while True:
+            for coin, clients in self.gateways_clients.items():
+                for side in clients:
+                    client = clients.get(side)
+                    if not client:
+                        continue
+                    try:
+                        await client.connect(
+                            client._host, client._port, client.ws_rpc_endpoint
+                        )
+                        await client.disconnect()
+                        if not client.is_successfully_connected:
+                            log.info(
+                                f"{client} client successfully connected to ws://{client._host}:{client._port}/{client.ws_rpc_endpoint}"
+                            )
+                        client.is_successfully_connected = True
+                    except Exception as ex:
+                        if client.is_successfully_connected in (None, True):
+                            log.warning(
+                                f"{client} client unable to connect ws://{client._host}:{client._port}/{client.ws_rpc_endpoint}: {ex}"
+                            )
+                        client.is_successfully_connected = False
+
+            await asyncio.sleep(3)
+
     def run(self):
         loop = asyncio.get_event_loop()
         signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
@@ -56,24 +83,16 @@ class AppContext:
             self.gateways_clients[name] = {}
             log.info(f"Setup {name} gateways clients connections...")
             for side, params in data.items():
-
                 if params:
                     gw_client = BookerSideClient(name, side, self, params[0], params[1])
                     self.gateways_clients[name][side] = gw_client
-                    try:
-                        loop.run_until_complete(
-                            gw_client.connect(params[0], params[1], "/ws-rpc")
-                        )
-                        log.info(
-                            f"{side}{name} client created and ready to connect ws://{params[0]}:{params[1]}/ws-rpc"
-                        )
-                        loop.run_until_complete(gw_client.disconnect())
-                    except Exception as ex:
-                        log.warning(
-                            f"{side}{name} created, but unable to connect ws://{params[0]}:{params[1]}/ws-rpc: {ex}"
-                        )
+                    log.info(
+                        f"{gw_client} created and ready to connect ws://{params[0]}:{params[1]}/ws-rpc"
+                    )
                 else:
                     log.info(f"{side}{name} client not specified")
+
+        loop.create_task(self.check_connections())
 
         self.order_processing = OrdersProcessor(self)
         loop.create_task(self.order_processing.run())

@@ -18,6 +18,7 @@ class BaseClient(JsonRpcClient):
         self._host = host
         self._port = port
         self.ws_rpc_endpoint = ws_rpc_endpoint
+        self.is_successfully_connected = None
 
     async def ping(self):
         """Just RPC string ping-pong"""

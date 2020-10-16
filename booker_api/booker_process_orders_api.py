@@ -73,30 +73,34 @@ class OrdersProcessor:
                             _in_coin.replace(f"{self.ctx.cfg.exchange_prefix}.", "")
                         ]["native"]
 
-                    if gw:
-                        log.info(
-                            f"Try {gw} initialize out transaction for {order.order_id}..."
-                        )
+                    if not gw:
+                        continue
 
-                        """Gateway must response with TransactionDTO filled max_confirmations and from_address params.
-                         It's a signal that gateway ready to execute new transaction
-                         """
-                        try:
+                    if not gw.is_successfully_connected:
+                        continue
 
-                            # TODO take_fee, remove this mock
-                            if order.out_tx.amount == 0 and order.in_tx.amount != 0:
-                                order.out_tx.amount = order.in_tx.amount
+                    log.info(
+                        f"Try {gw} initialize out transaction for {order.order_id}..."
+                    )
 
-                            new_tx = await gw.init_new_tx_request(order)
+                    """Gateway must response with TransactionDTO filled max_confirmations and from_address params.
+                     It's a signal that gateway ready to execute new transaction
+                     """
+                    try:
+                        # TODO take_fee, remove this mock
+                        if order.out_tx.amount == 0 and order.in_tx.amount != 0:
+                            order.out_tx.amount = order.in_tx.amount
 
-                            assert new_tx.max_confirmations > 0
-                            assert new_tx.from_address is not None
+                        new_tx = await gw.init_new_tx_request(order)
 
-                            order.out_tx.max_confirmations = new_tx.max_confirmations
-                            order.out_tx.from_address = new_tx.from_address
+                        assert new_tx.max_confirmations > 0
+                        assert new_tx.from_address is not None
 
-                            await safe_update_order(conn, order)
-                        except Exception as ex:
-                            log.info(f"Unable to init new transaction: {new_tx}, {ex}")
+                        order.out_tx.max_confirmations = new_tx.max_confirmations
+                        order.out_tx.from_address = new_tx.from_address
+
+                        await safe_update_order(conn, order)
+                    except Exception as ex:
+                        log.info(f"Unable to init new transaction: {new_tx}, {ex}")
 
             await asyncio.sleep(1)
