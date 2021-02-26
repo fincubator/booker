@@ -13,7 +13,7 @@ pre-commit = "~=2.5.1"
 [packages]
 msgpack = "~=1.0.0"
 pyyaml = "~=5.3.1"
-aiohttp = "~=3.6.2"
+aiohttp = "~=3.7.4"
 aiohttp-json-rpc = "~=0.13.2"
 marshmallow-dataclass = "~=7.6.0"
 marshmallow-enum = "~=1.5.1"
